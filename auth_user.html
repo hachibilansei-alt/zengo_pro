@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ 'ثبت‌نام' if mode == 'register' else 'ورود' }} | Zengo{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h1>{{ 'ساخت حساب کاربری' if mode == 'register' else 'ورود به حساب' }}</h1>
+    <p class="auth-hint">فقط نام کاربری و رمز عبور کافی است. ایمیل لازم نیست.</p>
+    <form method="post" action="{{ url_for('user_register' if mode == 'register' else 'user_login', next=request.args.get('next','')) }}">
+      {% if mode != 'register' and request.args.get('next') %}
+        <input type="hidden" name="next" value="{{ request.args.get('next') }}">
+      {% endif %}
+      <label for="username">نام کاربری</label>
+      <input id="username" name="username" type="text" required minlength="3" maxlength="32" autocomplete="username" placeholder="مثلاً gamer_iran">
+      <label for="password">رمز عبور</label>
+      <input id="password" name="password" type="password" required minlength="6" maxlength="128" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}">
+      {% if mode == 'register' %}
+      <label for="password2">تکرار رمز عبور</label>
+      <input id="password2" name="password2" type="password" required minlength="6" maxlength="128" autocomplete="new-password">
+      {% endif %}
+      <button class="btn btn-primary full" type="submit">{{ 'ثبت‌نام' if mode == 'register' else 'ورود' }}</button>
+    </form>
+    <p class="auth-switch">
+      {% if mode == 'register' %}
+        حساب داری؟ <a href="{{ url_for('user_login') }}">وارد شو</a>
+      {% else %}
+        حساب نداری؟ <a href="{{ url_for('user_register') }}">ثبت‌نام کن</a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+{% endblock %}

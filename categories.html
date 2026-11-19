@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ 'فیلم و سریال' if category=='film' else 'بازی‌ها' }} | Zengo{% endblock %}
+{% block content %}
+<section class="listing-page">
+  <header class="listing-hero {{ 'listing-film' if category=='film' else 'listing-game' }}">
+    <span class="eyebrow">{{ 'ZENGO / WATCH' if category=='film' else 'ZENGO / PLAY' }}</span>
+    <h1>{{ 'فیلم و سریال' if category=='film' else 'دنیای بازی‌ها' }}</h1>
+    <p>{{ 'از سینمای مستقل تا سریال‌های روز؛ نقدها و پیشنهادهای تماشای ما را دنبال کن.' if category=='film' else 'از بازی‌های مستقل تا تجربه‌های بزرگ؛ نقد، تحلیل و راهنما برای هر پلتفرم.' }}</p>
+  </header>
+
+  <div class="device-landing">
+  {% if category=='film' %}
+    <a class="device-card device-cinema" href="{{ url_for('film_catalog', film_type='cinema') }}">
+      <div class="device-visual" aria-hidden="true">
+        <div class="clapper">
+          <div class="clapper-top"></div>
+          <div class="clapper-board">
+            <span></span><span></span><span></span>
+            <b>CINEMA</b>
+          </div>
+        </div>
+      </div>
+      <div class="device-copy">
+        <span class="device-kicker">SCREEN</span>
+        <h2>فیلم‌های سینمایی</h2>
+        <p>نقد آثار بزرگ پرده سینما، از بلاک‌باستر تا سینمای هنری</p>
+        <span class="device-cta">ورود به آرشیو ←</span>
+      </div>
+    </a>
+    <a class="device-card device-series" href="{{ url_for('film_catalog', film_type='series') }}">
+      <div class="device-visual" aria-hidden="true">
+        <div class="tv-set">
+          <div class="tv-bezel"><div class="tv-screen"><i></i><i></i><i></i></div></div>
+          <div class="tv-stand"></div>
+        </div>
+      </div>
+      <div class="device-copy">
+        <span class="device-kicker">SERIES</span>
+        <h2>سریال‌ها</h2>
+        <p>فصل‌های تازه، مینی‌سریال‌ها و مجموعه‌های ماندگار</p>
+        <span class="device-cta">ورود به آرشیو ←</span>
+      </div>
+    </a>
+  {% else %}
+    <a class="device-card device-mobile" href="{{ url_for('game_catalog', game_device='mobile') }}">
+      <div class="device-visual" aria-hidden="true">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-ui-bar"></div>
+            <div class="phone-app"></div>
+            <div class="phone-app phone-app-2"></div>
+            <div class="phone-app phone-app-3"></div>
+            <div class="phone-home"></div>
+          </div>
+        </div>
+      </div>
+      <div class="device-copy">
+        <span class="device-kicker">MOBILE</span>
+        <h2>بازی‌های موبایل</h2>
+        <p>تجربه‌های Android و iOS؛ از کژوال تا رقابتی</p>
+        <span class="device-cta">ورود به آرشیو ←</span>
+      </div>
+    </a>
+    <a class="device-card device-pc" href="{{ url_for('game_catalog', game_device='computer') }}">
+      <div class="device-visual" aria-hidden="true">
+        <div class="pc-rig">
+          <div class="pc-monitor">
+            <div class="pc-screen">
+              <div class="pc-hud"></div>
+              <div class="pc-hud pc-hud-2"></div>
+            </div>
+          </div>
+          <div class="pc-base"></div>
+          <div class="pc-keyboard"></div>
+        </div>
+      </div>
+      <div class="device-copy">
+        <span class="device-kicker">PC &amp; CONSOLE</span>
+        <h2>بازی‌های کامپیوتری</h2>
+        <p>PC، پلی‌استیشن، ایکس‌باکس و نینتندو</p>
+        <span class="device-cta">ورود به آرشیو ←</span>
+      </div>
+    </a>
+  {% endif %}
+  </div>
+
+  <div class="category-note">
+    <b>انتخاب آگاهانه‌تر</b>
+    <span>در هر نقد، خلاصه، امتیاز تحریریه و جزئیات اثر را کنار هم می‌بینی — بدون شعار تبلیغاتی.</span>
+  </div>
+</section>
+{% endblock %}

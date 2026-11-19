@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block title %}تنظیمات سایت | Zengo{% endblock %}
+{% block content %}<section class="form-wrap"><div class="section-head"><div><span class="eyebrow">مدیریت سایت</span><h1>تنظیمات Zengo</h1></div><a class="back-link" href="{{ url_for('admin_dashboard') }}">بازگشت به پنل</a></div>
+<form class="edit-form" method="post">
+<h3>شخصی‌سازی صفحه اصلی</h3>
+<p class="settings-hint">عنوان بزرگ صفحه اصلی فقط نام Zengo است. از این قسمت می‌توانی عنوان بخش‌های محتوایی را تغییر بدهی.</p>
+<label>عنوان بخش خبر و مقاله<input name="home_editorial_title" maxlength="120" value="{{ settings.get('home_editorial_title','خبر، راهنما و تحلیل') }}"></label>
+<label>عنوان بخش نقد بازی<input name="home_games_title" maxlength="120" value="{{ settings.get('home_games_title','تازه‌ترین نقد بازی‌ها') }}"></label>
+<label>عنوان بخش نقد فیلم و سریال<input name="home_films_title" maxlength="120" value="{{ settings.get('home_films_title','تازه‌ترین نقد فیلم و سریال') }}"></label>
+<label>رنگ اصلی سایت<select name="accent_theme"><option value="violet" {% if settings.get('accent_theme','violet') == 'violet' %}selected{% endif %}>بنفش و آبی</option><option value="cyan" {% if settings.get('accent_theme') == 'cyan' %}selected{% endif %}>فیروزه‌ای</option><option value="coral" {% if settings.get('accent_theme') == 'coral' %}selected{% endif %}>مرجانی</option><option value="lime" {% if settings.get('accent_theme') == 'lime' %}selected{% endif %}>سبز روشن</option></select></label>
+<label>متن کوتاه فوتر<input name="footer_description" maxlength="120" value="{{ settings.get('footer_description','نگاهی دقیق‌تر به فیلم، سریال و بازی.') }}"></label>
+<hr><h3>شبکه‌های اجتماعی</h3><p class="settings-hint">لینک کامل هر شبکه را وارد کن؛ باید با https:// شروع شود. خالی گذاشتن هر فیلد، آن شبکه را از پایین سایت پنهان می‌کند.</p>
+<label>لینک کانال YouTube<input name="youtube_url" type="url" dir="ltr" placeholder="https://www.youtube.com/@..." value="{{ settings.get('youtube_url','') }}"></label>
+<label>لینک X<input name="x_url" type="url" dir="ltr" placeholder="https://x.com/..." value="{{ settings.get('x_url','') }}"></label>
+<label>لینک Instagram<input name="instagram_url" type="url" dir="ltr" placeholder="https://www.instagram.com/..." value="{{ settings.get('instagram_url','') }}"></label>
+<hr><h3>آماده‌سازی تبلیغات</h3><p class="settings-hint">این گزینه فقط جایگاه‌های تبلیغاتی مشخص را نمایش می‌دهد؛ برای درآمد واقعی باید سرویس تبلیغاتی جداگانه متصل شود.</p>
+<label class="settings-check"><input type="checkbox" name="ads_enabled" value="1" {% if settings.get('ads_enabled') == '1' %}checked{% endif %}> نمایش جایگاه‌های تبلیغاتی</label>
+<label>ایمیل تماس عمومی<input name="contact_email" type="email" dir="ltr" placeholder="hello@example.com" value="{{ settings.get('contact_email','') }}"></label>
+<button class="btn btn-primary" type="submit">ذخیره تنظیمات</button></form></section>{% endblock %}

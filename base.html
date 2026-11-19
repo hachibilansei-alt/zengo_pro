@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" id="themeColorMeta" content="#0b1020">
+  <meta name="description" content="{% block meta_description %}Zengo؛ مجله مستقل فیلم، سریال و بازی با نقد، خبر، راهنما و تحلیل.{% endblock %}">
+  <meta property="og:site_name" content="Zengo">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}Zengo | مجله فیلم و بازی{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}نقدهای مستقل، خبرها و راهنماهای دنیای سرگرمی.{% endblock %}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/zengo-logo.svg') }}">
+  <link rel="alternate icon" href="{{ url_for('static', filename='images/naqdnama-logo.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&family=DM+Sans:wght@500;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>{% block title %}Zengo | مجله فیلم و بازی{% endblock %}</title>
+  <meta name="color-scheme" content="dark light">
+</head>
+<body style="--accent: {{ site_accent }};">
+<div class="app-layout">
+  <aside class="side-panel" id="sidePanel">
+    <a class="brand-sidebar" href="{{ url_for('index') }}"><span class="brand-copy"><strong>Zengo</strong><small>فراتر از سرگرمی</small></span></a>
+    <div class="side-caption">کشف و مطالعه</div>
+    <nav class="side-nav" aria-label="منوی اصلی">
+      <a class="side-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}"><span class="side-ico">⌂</span> خانه</a>
+      <a class="side-link {% if request.endpoint in ['films','film_catalog'] %}active{% endif %}" href="{{ url_for('films') }}"><span class="side-ico">▣</span> فیلم و سریال</a>
+      <a class="side-link {% if request.endpoint in ['games','game_catalog'] %}active{% endif %}" href="{{ url_for('games') }}"><span class="side-ico">⌘</span> بازی‌ها</a>
+      <a class="side-link {% if request.endpoint == 'news' %}active{% endif %}" href="{{ url_for('news') }}"><span class="side-ico">▤</span> خبرها و مقاله‌ها</a>
+    </nav>
+    <div class="side-caption side-caption-lower">ZENGO PICKS</div>
+    <a class="side-link" href="{{ url_for('index') }}#latest"><span class="side-ico">✦</span> تازه‌ترین مطالب</a>
+    <a class="side-link" href="{{ url_for('advertise') }}"><span class="side-ico">↗</span> همکاری و تبلیغات</a>
+    <div class="sidebar-bottom">© Zengo · رسانه مستقل سرگرمی</div>
+  </aside>
+  <div class="main-column">
+    <header class="top-header">
+      <button class="menu-toggle" id="menuToggle" aria-label="باز کردن منو" aria-expanded="false" aria-controls="sidePanel">☰</button>
+      <a class="top-zengo-word" href="{{ url_for('index') }}" aria-label="Zengo">Zengo</a>
+      <div class="top-breadcrumb">مجله سرگرمی <span>/</span> {% if request.endpoint in ['films','film_catalog'] %}فیلم و سریال{% elif request.endpoint in ['games','game_catalog'] %}بازی‌ها{% elif request.endpoint == 'news' %}خبرها و مقاله‌ها{% else %}خانه{% endif %}</div>
+      <form class="global-search" action="{{ url_for('search') }}" method="get" role="search">
+        <select name="kind" aria-label="نوع جست‌وجو"><option value="film" {% if request.args.get('kind') != 'game' %}selected{% endif %}>فیلم و سریال</option><option value="game" {% if request.args.get('kind') == 'game' %}selected{% endif %}>بازی‌ها</option></select>
+        <input type="search" name="q" value="{{ request.args.get('q','') }}" placeholder="جست‌وجوی فیلم، سریال یا بازی..." aria-label="عبارت جست‌وجو" required>
+        <button type="submit" aria-label="جست‌وجو">⌕</button>
+      </form>
+      <div class="top-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="تغییر حالت روشن و تاریک" title="تغییر پوسته"><span id="themeIcon">☀</span><span class="theme-label">حالت روشن</span></button>
+        {% if current_user %}
+          <span class="user-chip" title="حساب کاربری">{{ current_user.username }}</span>
+          <form class="inline-form" action="{{ url_for('user_logout') }}" method="post"><button class="btn btn-outline btn-small" type="submit">خروج</button></form>
+        {% else %}
+          <a class="btn btn-outline btn-small top-auth-btn" href="{{ url_for('user_login') }}">ورود</a>
+          <a class="btn btn-primary btn-small top-auth-btn" href="{{ url_for('user_register') }}">ثبت‌نام</a>
+        {% endif %}
+      </div>
+    </header>
+    <main>
+      {% if site_settings.get('ads_enabled') == '1' %}<div class="ad-slot ad-slot-top" aria-label="جایگاه تبلیغات"><span>تبلیغات</span><small>جایگاه تبلیغاتی Zengo</small></div>{% endif %}
+      {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-wrap">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    {% if site_settings.get('ads_enabled') == '1' %}<div class="ad-slot ad-slot-footer" aria-label="جایگاه تبلیغات"><span>تبلیغات</span><small>جایگاه معرفی حامیان و آگهی‌های مرتبط</small></div>{% endif %}
+    <footer class="footer">
+      <div class="footer-top"><a class="footer-wordmark" href="{{ url_for('index') }}">Zengo</a><p>{{ site_settings.get('footer_description', 'نگاهی دقیق‌تر به فیلم، سریال و بازی.') }}</p></div>
+      <nav class="footer-pages" aria-label="پیوندهای اطلاعاتی"><a href="{{ url_for('about') }}">درباره ما</a><a href="{{ url_for('editorial_policy') }}">سیاست تحریریه</a><a href="{{ url_for('advertise') }}">تبلیغات و همکاری</a><a href="{{ url_for('privacy') }}">حریم خصوصی</a><a href="{{ url_for('contact') }}">تماس با ما</a></nav>
+      <div class="social-links" aria-label="شبکه‌های اجتماعی">
+        {% if site_settings.get('youtube_url') %}<a href="{{ site_settings.youtube_url }}" target="_blank" rel="noopener noreferrer">▶ YouTube</a>{% else %}<span class="social-pending">▶ YouTube</span>{% endif %}
+        {% if site_settings.get('x_url') %}<a href="{{ site_settings.x_url }}" target="_blank" rel="noopener noreferrer">𝕏 X</a>{% else %}<span class="social-pending">𝕏 X</span>{% endif %}
+        {% if site_settings.get('instagram_url') %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener noreferrer">◎ Instagram</a>{% else %}<span class="social-pending">◎ Instagram</span>{% endif %}
+      </div>
+      <small>© Zengo · نقد مستقل، تبلیغات شفاف</small>
+    </footer>
+  </div>
+</div>
+<div class="sidebar-scrim" id="sidebarScrim"></div>
+<script src="{{ url_for('static', filename='js/site.js') }}"></script>{% block scripts %}{% endblock %}
+</body></html>

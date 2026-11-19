@@ -1,0 +1,19 @@
+{
+  "name": "Zengo",
+  "short_name": "Zengo",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0d16",
+  "theme_color": "#101116",
+  "description": "مجله فارسی فیلم، سریال و بازی",
+  "icons": [
+    {
+      "src": "/static/images/zengo-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

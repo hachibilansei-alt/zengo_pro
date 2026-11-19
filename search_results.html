@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}جست‌وجو در {{ 'فیلم و سریال' if kind=='film' else 'بازی‌ها' }} | Zengo{% endblock %}
+{% block content %}
+<section class="section search-results-section">
+ <div class="section-head"><div><span class="eyebrow">جست‌وجوی Zengo</span><h1>نتایج جست‌وجو</h1><p class="search-summary">{{ 'جست‌وجو در تمام فیلم‌های سینمایی و سریال‌ها' if kind=='film' else 'جست‌وجو در بازی‌های موبایل و کامپیوتری' }} برای «{{ query }}»</p></div><span class="result-count">{{ results|length }} نتیجه</span></div>
+ {% if not query %}<div class="empty-state">عبارت موردنظرت را در کادر جست‌وجوی بالای سایت وارد کن.</div>
+ {% elif results %}<div class="review-grid">
+ {% for r in results %}<article class="review-card"><a class="poster" href="{{ url_for('review_detail', review_id=r.id) }}">{% if r.poster %}<img src="{{ r.poster }}" alt="پوستر {{ r.title }}" loading="lazy">{% else %}<div class="poster-placeholder"><span>{{ 'FILM' if kind=='film' else 'GAME' }}</span><b>{{ r.title }}</b></div>{% endif %}{% if r.content_type == 'review' %}<span class="score">{{ '%.1f'|format(r.score) }}<small>/۱۰</small></span>{% endif %}</a><div class="card-info"><div class="meta"><span>{{ {'review':'نقد و بررسی','news':'خبر','guide':'راهنما','feature':'تحلیل'}.get(r.content_type,'مطلب') }}</span><span>{{ 'فیلم و سریال' if kind=='film' else 'بازی' }}</span><span>{{ r.year }}</span>{% if kind=='film' %}<span>{{ 'سریالی' if r.film_type=='series' else 'سینمایی' }}</span>{% else %}<span>{{ 'موبایل' if r.game_device=='mobile' else 'کامپیوتری' }}</span>{% endif %}</div><h3><a href="{{ url_for('review_detail', review_id=r.id) }}">{{ r.title }}</a></h3><p>{{ r.summary }}</p><div class="card-bottom"><span class="genre-label">{{ r.genre }}</span><a href="{{ url_for('review_detail', review_id=r.id) }}">ادامه نقد ←</a></div></div></article>{% endfor %}
+ </div>{% else %}<div class="empty-state">نتیجه‌ای برای «{{ query }}» در {{ 'فیلم و سریال' if kind=='film' else 'بازی‌ها' }} پیدا نشد.</div>{% endif %}
+</section>
+{% endblock %}

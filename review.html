@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}{{ review.title }} | Zengo{% endblock %}
+{% block meta_description %}{{ review.meta_description or review.summary }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ review.title }} | Zengo{% endblock %}
+{% block og_description %}{{ review.meta_description or review.summary }}{% endblock %}
+{% block content %}
+<article class="article-page">
+  <a class="back-link" href="{{ url_for('index') }}">← بازگشت به Zengo</a>
+  <header class="article-header">
+    <div class="article-kickers">
+      <span>{{ {'review':'نقد و بررسی','news':'خبر','guide':'راهنما','feature':'مقاله و تحلیل'}.get(review.content_type,'مطلب') }}</span>
+      <span>{{ 'بازی' if review.kind=='game' else 'فیلم و سریال' }}</span>
+      <span>{{ review.genre }}</span>
+    </div>
+    <h1>{{ review.title }}</h1>
+    <p class="article-deck">{{ review.summary }}</p>
+    <div class="article-byline">
+      <span>نویسنده: <b>{{ review.author or 'تحریریه Zengo' }}</b></span>
+      <span>زمان مطالعه: حدود {{ reading_minutes }} دقیقه</span>
+      <span>انتشار: {{ review.created_at[:10] if review.created_at else '—' }}</span>
+      {% if review.updated_at %}<span>به‌روزرسانی: {{ review.updated_at[:10] }}</span>{% endif %}
+    </div>
+  </header>
+
+  <div class="article-layout">
+    <aside class="article-aside">
+      <div class="article-poster">
+        {% if review.poster %}
+          <img src="{{ review.poster }}" alt="پوستر {{ review.title }}" fetchpriority="high">
+        {% else %}
+          <div class="poster-placeholder"><span>{{ 'FILM' if review.kind=='film' else 'GAME' }}</span><b>{{ review.title }}</b></div>
+        {% endif %}
+      </div>
+
+      {% if review.content_type == 'review' %}
+      <div class="editor-score" style="--score-pct: {{ (review.score or 0) * 10 }}">
+        <div class="score-ring">
+          <strong>{{ "%.1f"|format(review.score) }}</strong>
+        </div>
+        <small>امتیاز تحریریه Zengo</small>
+        <span>نظر مستقل نویسنده · از ۱۰</span>
+      </div>
+      {% endif %}
+
+      <div class="article-facts">
+        <b>مشخصات اثر</b>
+        <span>سال انتشار <strong>{{ review.year or '—' }}</strong></span>
+        {% if review.country %}<span>کشور <strong>{{ review.country }}</strong></span>{% endif %}
+        <span>ژانر <strong>{{ review.genre }}</strong></span>
+        {% if review.kind == 'film' %}
+          <span>نوع <strong>{{ 'سریال' if review.film_type=='series' else 'سینمایی' }}</strong></span>
+        {% else %}
+          <span>دستگاه <strong>{{ 'موبایل' if review.game_device=='mobile' else 'کامپیوتر' }}</strong></span>
+          {% if review.platform %}<span>پلتفرم <strong>{{ review.platform }}</strong></span>{% endif %}
+        {% endif %}
+      </div>
+    </aside>
+
+    <div class="article-main">
+      <div class="article-body">{{ review.body }}</div>
+
+      {% if site_settings.get('ads_enabled') == '1' %}
+      <div class="ad-slot ad-slot-inline" aria-label="جایگاه تبلیغات">
+        <span>تبلیغات</span>
+        <small>محتوای تبلیغاتی از نقد تحریریه جداست</small>
+      </div>
+      {% endif %}
+
+      {% if trailer %}
+      <section class="review-trailer">
+        <h2>تریلر و ویدئو</h2>
+        {% if trailer.type == 'embed' %}
+          <div class="trailer-frame">
+            <iframe src="{{ trailer.url }}" title="تریلر {{ review.title }}" loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </div>
+        {% else %}
+          <video class="trailer-video" controls preload="metadata" playsinline>
+            <source src="{{ trailer.url }}">مرورگر شما از پخش این ویدئو پشتیبانی نمی‌کند.
+          </video>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      {% set gallery = review.images|from_json %}
+      {% if gallery %}
+      <section class="review-gallery">
+        <h2>گالری تصاویر</h2>
+        <div class="review-gallery-grid">
+          {% for img in gallery %}
+            <img src="{{ img }}" alt="تصویر تکمیلی {{ review.title }}" loading="lazy">
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <div class="article-disclaimer">
+        این مطلب دیدگاه نویسنده و تحریریه Zengo است. امتیاز، نظر مستقل تحریریه را نشان می‌دهد و به معنی امتیاز کاربران یا میانگین منتقدان دیگر نیست.
+      </div>
+    </div>
+  </div>
+
+  <section class="comments-section" id="comments">
+    <div class="editorial-section-head">
+      <div>
+        <span class="eyebrow">COMMUNITY</span>
+        <h2>نظرات کاربران</h2>
+        <p>{{ comments|length if comments else 0 }} نظر</p>
+      </div>
+    </div>
+
+    {% if current_user %}
+    <form class="comment-form" method="post" action="{{ url_for('post_comment', review_id=review.id) }}">
+      <label for="commentBody">نظر شما به‌عنوان <b>{{ current_user.username }}</b></label>
+      <textarea id="commentBody" name="body" rows="4" maxlength="2000" required placeholder="نظرت درباره این مطلب را بنویس..."></textarea>
+      <button class="btn btn-primary" type="submit">ارسال نظر</button>
+    </form>
+    {% else %}
+    <div class="comment-login-box">
+      <p>برای ثبت نظر وارد حساب شو یا ثبت‌نام کن (فقط نام کاربری و رمز).</p>
+      <div class="comment-login-actions">
+        <a class="btn btn-primary btn-small" href="{{ url_for('user_login', next=request.path) }}">ورود</a>
+        <a class="btn btn-outline btn-small" href="{{ url_for('user_register', next=request.path) }}">ثبت‌نام</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="comments-list">
+      {% if comments %}
+        {% for c in comments %}
+        <article class="comment-item">
+          <div class="comment-meta">
+            <span class="comment-user">{{ c.username }}</span>
+            <time datetime="{{ c.created_at }}">{{ c.created_at[:16] if c.created_at else '' }}</time>
+          </div>
+          <p class="comment-body">{{ c.body }}</p>
+        </article>
+        {% endfor %}
+      {% else %}
+        <p class="muted-copy">هنوز نظری ثبت نشده. اولین نفر باش.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if related %}
+  <section class="related-content">
+    <div class="editorial-section-head">
+      <div>
+        <span class="eyebrow">KEEP EXPLORING</span>
+        <h2>مطالب مرتبط</h2>
+      </div>
+    </div>
+    <div class="related-grid">
+      {% for item in related %}
+      <a class="related-card" href="{{ url_for('review_detail', review_id=item.id) }}">
+        <span>{{ {'review':'نقد و بررسی','news':'خبر','guide':'راهنما','feature':'تحلیل'}.get(item.content_type,'مطلب') }}</span>
+        <b>{{ item.title }}</b>
+        <small>{{ item.summary }}</small>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</article>
+
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": "Review" if review.content_type == "review" else "Article",
+  "headline": review.title,
+  "description": review.meta_description or review.summary,
+  "author": {"@type": "Person", "name": review.author or "تحریریه Zengo"},
+  "datePublished": review.created_at,
+  "dateModified": review.updated_at or review.created_at,
+  "mainEntityOfPage": request.url,
+  "publisher": {"@type": "Organization", "name": "Zengo", "logo": {"@type": "ImageObject", "url": request.url_root + "static/images/zengo-logo.svg"}},
+  "itemReviewed": {
+    "@type": "VideoGame" if review.kind == "game" else "Movie",
+    "name": review.title,
+    "genre": review.genre
+  },
+  "reviewRating": {
+    "@type": "Rating",
+    "ratingValue": review.score,
+    "bestRating": 10,
+    "worstRating": 0
+  } if review.content_type == "review" else none
+}|tojson }}
+</script>
+{% endblock %}

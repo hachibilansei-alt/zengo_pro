@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ ('سریال‌ها' if subtype=='series' else 'فیلم‌های سینمایی') if page_kind=='film' else ('بازی‌های موبایل' if subtype=='mobile' else 'بازی‌های کامپیوتری') }} | Zengo{% endblock %}
+{% block content %}
+<section class="catalog-hero {{ 'film-catalog' if page_kind=='film' else 'game-catalog' }}">
+ <a class="back-link" href="{{ url_for('index') }}">← بازگشت به خانه</a>
+ <span class="eyebrow">{{ ('نقد و بررسی سریال' if subtype=='series' else 'نقد و بررسی سینما') if page_kind=='film' else ('نقد و بررسی بازی موبایل' if subtype=='mobile' else 'نقد و بررسی بازی کامپیوتری') }}</span>
+ <h1>{{ ('دنیای سریال‌ها' if subtype=='series' else 'دنیای سینما') if page_kind=='film' else ('بازی‌های موبایل' if subtype=='mobile' else 'بازی‌های کامپیوتری') }}</h1>
+ <p>{{ ('اینجا نقد و بررسی سریال‌ها را پیدا می‌کنی.' if subtype=='series' else 'اینجا نقد و بررسی فیلم‌های سینمایی را پیدا می‌کنی.') if page_kind=='film' else ('اینجا نقد و بررسی بازی‌های موبایل را پیدا می‌کنی.' if subtype=='mobile' else 'اینجا نقد و بررسی بازی‌های کامپیوتری را پیدا می‌کنی.') }}</p>
+</section>
+<section class="section catalog-section">
+ <div class="section-head"><div><span class="eyebrow">کتابخانه اختصاصی</span><h2>{{ ('همه سریال‌ها' if subtype=='series' else 'همه فیلم‌های سینمایی') if page_kind=='film' else ('همه بازی‌های موبایل' if subtype=='mobile' else 'همه بازی‌های کامپیوتری') }}</h2></div><span class="result-count" id="resultCount">{{ reviews|length }} مورد</span></div>
+ <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="{{ 'جست‌وجوی نام فیلم...' if page_kind=='film' else 'جست‌وجوی نام بازی...' }}"></label>
+ {% if page_kind=='game' and subtype=='computer' %}<div class="filters platform-filters"><button class="filter active" data-platform="all">همه پلتفرم‌ها</button><button class="filter" data-platform="PC">کامپیوتر (PC)</button><button class="filter" data-platform="PlayStation">پلی‌استیشن</button><button class="filter" data-platform="Xbox">ایکس‌باکس</button><button class="filter" data-platform="Nintendo">نینتندو</button><button class="filter" data-platform="Multi">چندپلتفرمی</button></div>{% elif page_kind=='game' %}<div class="filters platform-filters"><button class="filter active" data-platform="all">همه پلتفرم‌ها</button><button class="filter" data-platform="Android">اندروید</button><button class="filter" data-platform="iOS">iOS</button></div>{% endif %}</div>
+ <div class="genre-row"><button class="genre active" data-genre="all">همه ژانرها</button>{% for g in genres %}<button class="genre" data-genre="{{ g.name }}">{{ g.name }}</button>{% endfor %}</div>
+ <div class="review-grid" id="reviewGrid">
+ {% for r in reviews %}<article class="review-card" data-platform="{{ r.platform or '' }}" data-genre="{{ r.genre }}">
+  <a class="poster" href="{{ url_for('review_detail', review_id=r.id) }}">{% if r.poster %}<img src="{{ r.poster }}" alt="پوستر {{ r.title }}" loading="lazy">{% else %}<div class="poster-placeholder"><span>{{ 'FILM' if r.kind=='film' else 'GAME' }}</span><b>{{ r.title }}</b></div>{% endif %}{% if r.content_type == 'review' %}<span class="score">{{ "%.1f"|format(r.score) }}<small>/۱۰</small></span>{% endif %}</a>
+  <div class="card-info"><div class="meta"><span>{{ {'review':'نقد','news':'خبر','guide':'راهنما','feature':'تحلیل'}.get(r.content_type,'مطلب') }}</span><span>{{ 'فیلم' if r.kind=='film' else 'بازی' }}</span><span>{{ r.year }}</span>{% if r.country %}<span>{{ r.country }}</span>{% endif %}{% if page_kind=='game' and r.platform %}<span>{{ {'PC':'کامپیوتر','Android':'اندروید','PlayStation':'پلی‌استیشن','Xbox':'ایکس‌باکس','Nintendo':'نینتندو','Multi':'چندپلتفرمی'}.get(r.platform,r.platform) }}</span>{% endif %}</div><h3><a href="{{ url_for('review_detail', review_id=r.id) }}">{{ r.title }}</a></h3><p>{{ r.summary }}</p><div class="card-bottom"><span class="genre-label">{{ r.genre }}</span><a href="{{ url_for('review_detail', review_id=r.id) }}">ادامه نقد ←</a></div></div>
+ </article>{% else %}<div class="empty-state">هنوز موردی در این بخش ثبت نشده است.</div>{% endfor %}
+ </div><div class="empty-state hidden" id="noResults">موردی با این مشخصات پیدا نشد.</div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+let selectedPlatform='all';
+document.querySelectorAll('[data-platform]').forEach(b=>b.addEventListener('click',()=>{document.querySelector('.platform-filters .active')?.classList.remove('active');b.classList.add('active');selectedPlatform=b.dataset.platform;filterCatalog();}));
+document.querySelectorAll('.genre').forEach(b=>b.addEventListener('click',()=>{document.querySelector('.genre.active')?.classList.remove('active');b.classList.add('active');filterCatalog();}));
+document.getElementById('searchInput')?.addEventListener('input',filterCatalog);
+function filterCatalog(){const q=(document.getElementById('searchInput')?.value||'').toLocaleLowerCase('fa');const selectedGenre=document.querySelector('.genre.active')?.dataset.genre||'all';let n=0;document.querySelectorAll('.review-card').forEach(c=>{const ok=(selectedGenre==='all'||c.dataset.genre===selectedGenre)&&(selectedPlatform==='all'||c.dataset.platform===selectedPlatform)&&(!q||c.innerText.toLocaleLowerCase('fa').includes(q));c.classList.toggle('hidden',!ok);if(ok)n++;});document.getElementById('resultCount').textContent=n+' مورد';document.getElementById('noResults')?.classList.toggle('hidden',n!==0);}
+</script>
+{% endblock %}
